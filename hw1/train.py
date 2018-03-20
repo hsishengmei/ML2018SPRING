@@ -12,6 +12,7 @@ for i in range(18):
 n_row = 0
 text = open('data/train.csv', 'r', encoding='big5') 
 row = csv.reader(text , delimiter=",")
+
 for r in row:
     # 第0列為header沒有資訊
     if n_row != 0:
@@ -23,6 +24,18 @@ for r in row:
                 data[(n_row-1)%18].append(float(0)) 
     n_row = n_row+1
 text.close()
+
+mean = []
+std = []
+for d in data:
+    mean.append(np.mean(d))
+    std.append(np.std(d))
+
+normalized_data = []
+for i, d in enumerate(data):
+    normalized_data.append((d-mean[i])/std[i])
+
+data = normalized_data
 
 x = []
 y = []
@@ -40,43 +53,61 @@ for i in range(12):
 x = np.array(x)
 y = np.array(y)
 
-# x = np.concatenate((x,x**2), axis=1)
-# 增加平方項
+# remove outliers
+remove_idx = []
+for i in range(len(x)):
+    tmp = list(x[i][81:90]) 
+    tmp.append(y[i])
+    for j in tmp:
+        j_ = j*std[9] + mean[9]
+        if j_ > 200 or j_ < 1:
+            remove_idx.append(i)
+            break
+x = np.delete(x, remove_idx, 0)
+y = np.delete(y, remove_idx, 0)
+
 
 x = np.concatenate((np.ones((x.shape[0],1)),x), axis=1)
 # 增加bias項    
 
-l_x = len(x[0])
-
-# remove outliers
-remove_idx = []
-for i in range(len(x)):
-    for j in (x[i][82:91] + y[i]):
-        if j > 200 or j < 1:
-            remove_idx.append(i)
-            break
-
-x = np.delete(x, remove_idx, 0)
-y = np.delete(y, remove_idx, 0)
+# # take out 1/5 as testing data
+# n = random.sample(range(len(x)), int(len(x)/5))
+# x_validate = x[n]
+# y_validate = y[n]
+# x = np.delete(x, n, 0)
+# y = np.delete(y, n, 0)
 
 # train
+l_x = len(x[0])
 w = np.zeros(l_x)         # initial weight vector
-lr = 100                        # learning rate
-iter = 100000                      # iteration
-
+lr = 1                        # learning rate
+iter = 100000                 # max iteration
+lamb = 0.1
+last_cost = 10000000      # initially a large int
 x_t = x.transpose()
 s_gra = np.zeros(l_x)
-
 for i in range(iter):
     hypo = np.dot(x,w)
     loss = hypo - y
     cost = np.sum(loss**2) / len(x)
-    cost_a  = math.sqrt(cost)
-    gra = np.dot(x_t,loss)
+    cost_a = math.sqrt(cost)
+    if i > 1000:
+        if cost_a > last_cost: 
+            print ('iteration: %d | Cost: %f  , last_cost: %f' % ( i+1, cost_a, last_cost))
+            break
+    last_cost = cost_a
+    gra = np.dot(x_t,loss) + sum([k*k for k in w]) * lamb
     s_gra += gra**2
     ada = np.sqrt(s_gra)
     w = w - lr * gra/ada
-    if (i+1) % 100 == 0: print ('iteration: %d | Cost: %f  ' % ( i+1,cost_a))
+    if (i+1) % 1000 == 0: print ('iteration: %d | Cost: %f  ' % ( i+1,cost_a))
+
+# # validation
+# ans = np.dot(w, x_validate)
+# loss = hypo - y
+# cost = np.sum(loss**2) / len(x)
+# cost_a = math.sqrt(cost)
+# print ('validation: | Cost: %f' % ( cost_a))
 
 # save model
 np.save('model.npy',w)
