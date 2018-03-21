@@ -5,7 +5,7 @@ import random
 import numpy as np
 
 # read model
-w = np.load('model.npy')
+w, mean, std = np.load('model.npy')
 
 test_x = []
 n_row = 0
@@ -16,19 +16,17 @@ for r in row:
     if n_row %18 == 0:
         test_x.append([])
         for i in range(2,11):
-            test_x[n_row//18].append(float(r[i]) )
+            test_x[n_row//18].append((float(r[i])-mean[n_row%18])/std[n_row%18] )
     else :
         for i in range(2,11):
             if r[i] !="NR":
-                test_x[n_row//18].append(float(r[i]))
+                n = float(r[i])
             else:
-                test_x[n_row//18].append(0)
+                n = 0
+            test_x[n_row//18].append((n-mean[n_row%18])/std[n_row%18] )
     n_row = n_row+1
 text.close()
 test_x = np.array(test_x)
-
-# test_x = np.concatenate((test_x,test_x**2), axis=1)
-# 增加平方項
 
 test_x = np.concatenate((np.ones((test_x.shape[0],1)),test_x), axis=1)
 # 增加bias項  
@@ -37,6 +35,7 @@ ans = []
 for i in range(len(test_x)):
     ans.append(["id_"+str(i)])
     a = np.dot(w,test_x[i])
+    a = a*std[9] + mean[9]
     ans[i].append(a)
 
 filename = sys.argv[2]
