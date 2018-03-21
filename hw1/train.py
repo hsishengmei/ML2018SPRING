@@ -61,8 +61,10 @@ for i in range(len(x)):
         j_ = j*std[9] + mean[9]
         # j_ = j
         if j_ > 150 or j_ < 1:
+            # print(j_)
             remove_idx.append(i)
             break
+# input()
 x = np.delete(x, remove_idx, 0)
 y = np.delete(y, remove_idx, 0)
 
@@ -85,7 +87,6 @@ for _ in range(n_fold):
     y_validate = y[n]
     x = np.delete(x, n, 0)
     y = np.delete(y, n, 0)
-
     # train
     w = np.zeros(l_x)         # initial weight vector
     # last_cost = 10000000      # initially a large int
@@ -105,15 +106,15 @@ for _ in range(n_fold):
         s_gra += gra**2
         ada = np.sqrt(s_gra)
         w = w - lr * gra/ada
-        if (i+1) % 1000 == 0: print ('iteration: %d | Cost: %f  ' % ( i+1,cost_a))
+        if (i+1) % 1000 == 0: print ('iteration: %d | Cost: %f  ' % ( i+1,cost_a*std[9]))
 
     w_sum = w_sum + w
     # # validation
-    # ans = np.dot(w, x_validate)
-    # loss = hypo - y
-    # cost = np.sum(loss**2) / len(x)
-    # cost_a = math.sqrt(cost)
-    # print ('validation: | Cost: %f' % ( cost_a))
+    ans = np.dot(x_validate, w)
+    loss = ans - y_validate
+    cost = np.sum(loss**2) / len(x_validate)
+    cost_a = math.sqrt(cost)
+    print ('validation | Cost: %f' % ( cost_a*std[9]))
 
 # save model
 np.save('model.npy',(w_sum/n_fold, mean, std))
