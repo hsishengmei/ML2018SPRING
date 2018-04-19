@@ -9,6 +9,7 @@ tf.set_random_seed(7)
 from keras.models import Model, Sequential, load_model
 from keras.utils import np_utils
 
+import os
 from parse import parse_xy
 import trainer.train_660 as m1
 import trainer.train_660_2 as m2
@@ -19,10 +20,10 @@ import trainer.train_ens2 as m6
 from ens import my_ens
 
 if __name__ == '__main__':
-
-    #X = np.load('data/x_train.npy')
-    #Y = np.load('data/y_train.npy')
-    #testX = np.load('data/x_test.npy')
+    directory = 'trainer/tmp/'
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+    
     X, Y = parse_xy(sys.argv[1])
     print('parse done')
     
