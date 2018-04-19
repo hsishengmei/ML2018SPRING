@@ -3,11 +3,15 @@ import csv
 import sys
 from keras.models import Model, load_model
 from parse import parse_test
+import os
 
 if __name__ == '__main__':
+    directory = 'trainer/tmp/'
+    if not os.path.exists(directory):
+        os.makedirs(directory)
     testX = parse_test(sys.argv[1])
     testX = testX[:,:,:,np.newaxis] / 255
-    modelEns = load_model('model.h5')
+    modelEns = load_model('model_'+sys.argv[3]+'.h5')
     result = modelEns.predict(testX)
     hypo = [np.argmax(r) for r in result]
 
