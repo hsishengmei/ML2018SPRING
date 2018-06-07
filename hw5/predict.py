@@ -1,7 +1,7 @@
 import numpy as np
 np.random.seed(7)
 
-import sys
+import sys, os
 import pickle
 import csv
 from utils import *

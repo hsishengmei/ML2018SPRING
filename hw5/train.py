@@ -1,7 +1,7 @@
 import numpy as np
 np.random.seed(7)
 
-import sys
+import sys, os
 import pickle
 import csv
 from utils import *
@@ -67,8 +67,8 @@ if __name__ == '__main__':
     except:
         # parse docs
         print('parse text...')
-        docs1, labels = parse_label(filepath=sys.argv[1])
-        docs2 = parse_no_label(filepath=sys.argv[2])
+        docs1, labels = parse_label(sys.argv[1])
+        docs2 = parse_no_label(sys.argv[2])
     
         # docs preprocessing
         print('preprocessing...')
