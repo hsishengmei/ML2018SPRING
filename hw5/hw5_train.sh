@@ -1,1 +1,1 @@
-python3 train.py $1 $2
+python train.py $1 $2

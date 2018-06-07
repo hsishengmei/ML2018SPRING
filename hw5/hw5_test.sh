@@ -1,1 +1,1 @@
-python3 predict.py $1 $2
+python predict.py $1 $2
