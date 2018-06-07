@@ -34,6 +34,8 @@ if __name__ == '__main__':
     
     print('load tokenizer...')
     tokenizer_path = 'tokenizer.pickle'
+    with open(tokenizer_path, 'rb') as f:
+        tokenizer = pickle.load(f)
 
     print('load model...')
     model = load_model('model.h5')
