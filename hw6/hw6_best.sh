@@ -1,0 +1,1 @@
+python mf.py $1 $2
